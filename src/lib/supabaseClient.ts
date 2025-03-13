@@ -1,16 +1,16 @@
 import Cookies from 'js-cookie';
-import { createClient } from '@supabase/supabase-js';
+import { createBrowserClient } from '@supabase/ssr'
 
 const TOKEN = "supabase_token"
 const REFRESH_TOKEN = "supabase_refresh_token"
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+export const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+export const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
-export const supabase = createClient(supabaseUrl, supabaseKey);
+export const supabase = createBrowserClient(supabaseUrl, supabaseKey);
 export const setAuthCookies = async(access_token: string = "", refresh_token:string = "") => {
-    await Cookies.set(TOKEN,  access_token|| '', { expires: 7 }); 
-    await Cookies.set(REFRESH_TOKEN, refresh_token || '', { expires: 30 });
+    await Cookies.set(TOKEN,  access_token, { expires: 7 }); 
+    await Cookies.set(REFRESH_TOKEN, refresh_token, { expires: 30 });
 }
 
 export const logOut = async()=> {

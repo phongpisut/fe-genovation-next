@@ -1,8 +1,6 @@
-import * as React from "react";
+import * as React from 'react';
 
-import { cn } from "@/lib/utils";
-import { useMediaQuery } from "usehooks-ts";
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -10,7 +8,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
+} from '@/components/ui/dialog';
 import {
   Drawer,
   DrawerClose,
@@ -20,54 +18,57 @@ import {
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
-} from "@/components/ui/drawer";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from "./select";
+} from '@/components/ui/drawer';
+import { useMediaQuery } from 'usehooks-ts';
 
-export function ResponsiveModal() {
-  const [open, setOpen] = React.useState(false);
-  const isDesktop = useMediaQuery("(min-width: 768px)");
+export function ResponsiveModal({
+  title,
+  description,
+  trigger,
+  children,
+  open,
+  setOpen,
+}: {
+  title: string;
+  description: string;
+  trigger: React.ReactNode;
+  children: React.ReactNode;
+  open?: boolean;
+  setOpen?: React.Dispatch<React.SetStateAction<boolean>>;
+}) {
+  const isDesktop = useMediaQuery('(min-width: 768px)');
+  const [selfOpen, setSelfOpen] = React.useState(false);
 
   if (isDesktop) {
     return (
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogTrigger asChild>
-          <Button variant="outline">Edit Profile</Button>
-        </DialogTrigger>
+      <Dialog
+        open={setOpen ? open : selfOpen}
+        onOpenChange={setOpen ? setOpen : setSelfOpen}
+      >
+        <DialogTrigger asChild>{trigger}</DialogTrigger>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Edit profile</DialogTitle>
-            <DialogDescription>
-              Make changes to your profile here. Click save when you&#39;re
-              done.
-            </DialogDescription>
+            <DialogTitle>{title}</DialogTitle>
+            <DialogDescription>{description}</DialogDescription>
           </DialogHeader>
-          <ProfileForm />
+          {children}
         </DialogContent>
       </Dialog>
     );
   }
 
   return (
-    <Drawer open={open} onOpenChange={setOpen}>
-      <DrawerTrigger asChild>
-        <Button variant="outline">Edit Profile</Button>
-      </DrawerTrigger>
+    <Drawer
+      open={setOpen ? open : selfOpen}
+      onOpenChange={setOpen ? setOpen : setSelfOpen}
+    >
+      <DrawerTrigger asChild>{trigger}</DrawerTrigger>
       <DrawerContent>
         <DrawerHeader className="text-left">
-          <DrawerTitle>Edit profile</DrawerTitle>
-          <DrawerDescription>
-            Make changes to your profile here. Click save when you&#39;re done.
-          </DrawerDescription>
+          <DrawerTitle>{title}</DrawerTitle>
+          <DrawerDescription>{description}</DrawerDescription>
         </DrawerHeader>
-        <ProfileForm className="px-4" />
+        <div className="w-full h-full p-4"> {children}</div>
         <DrawerFooter className="pt-2">
           <DrawerClose asChild>
             <Button variant="outline">Cancel</Button>
@@ -75,33 +76,5 @@ export function ResponsiveModal() {
         </DrawerFooter>
       </DrawerContent>
     </Drawer>
-  );
-}
-
-function ProfileForm({ className }: React.ComponentProps<"form">) {
-  return (
-    <form className={cn("grid items-start gap-4", className)}>
-      <div className="grid gap-2">
-        <Label htmlFor="firstname">Full Name</Label>
-        <Input type="text" id="firstname" />
-      </div>
-      <div className="grid gap-2">
-        <Label htmlFor="lastname">Role</Label>
-        <Select>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Doctor" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="patient">Patient</SelectItem>
-            <SelectItem value="doctor">Doctor</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-      <div className="grid gap-2">
-        <Label htmlFor="specialty">Specialty</Label>
-        <Input type="text" id="specialty" />
-      </div>
-      <Button type="submit">Save changes</Button>
-    </form>
   );
 }
