@@ -16,6 +16,8 @@ const DataGrid = () => {
   const [openDialog, setOpenDialog] = useState(false);
   const firstRender = useRef(true);
 
+  const [matchingDoctor, setMatchingDoctor] = useState();
+
   const { isIntersecting, ref } = useIntersectionObserver({
     threshold: 0.2,
   });
@@ -41,6 +43,7 @@ const DataGrid = () => {
 
   const onProfileSelected = (role: string, id: number) => {
     if (role === 'doctor') {
+      document.body.style.cursor = 'wait';
       fetch(`/api/doctor?id=${id}`)
         .then(async (response) => {
           const result = await response.json();
@@ -51,10 +54,14 @@ const DataGrid = () => {
             }),
           };
           console.log(doctorData);
+          document.body.style.cursor = 'auto';
           setProfileData(doctorData);
           setOpenDialog(true);
         })
-        .catch((error) => console.error(error));
+        .catch((error) => {
+          console.error(error);
+          document.body.style.cursor = 'auto';
+        });
     }
   };
 

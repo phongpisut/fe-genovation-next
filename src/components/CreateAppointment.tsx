@@ -5,19 +5,12 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { ResponsiveModal } from './ui/responsiveModal';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from './ui/select';
 
 import type { DoctorData } from '@/app/api/doctor/type';
 import { Form } from '@/components/ui/form';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { format, isToday } from 'date-fns';
+import { format, isSameDay, isToday } from 'date-fns';
 import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -51,30 +44,31 @@ export default function CreateAppointment({
   };
 
   const appointment_date = form.watch('appointment_date');
+  const selectedTime = form.watch('appointment_time');
 
   const timeSlot = useMemo(() => {
-    if (appointment_date) {
-      if (isToday(appointment_date) && data?.schedule.work_hours) {
-        console.log(
+    if (appointment_date && data?.schedule.work_hours) {
+      return {
+        time:
           stringToTimeSlot(
             data.schedule.work_hours,
-            format(new Date(), 'HH:mm')
-          )
-        );
-      }
-      console.log(format(appointment_date, 'yyyy-MM-dd'));
-      console.log(appointment_date == new Date());
-      console.log(
-        format(appointment_date, 'yyyy-MM-dd') ===
-          data?.appointmentData[0]?.start_date
-      );
+            isToday(appointment_date) ? format(new Date(), 'HH:mm') : ''
+          ) || [],
+        filter:
+          data?.appointmentData
+            ?.filter((appointment) =>
+              isSameDay(new Date(appointment.start_date), appointment_date)
+            )
+            ?.map((appointment) => appointment.timeslot) || [],
+      };
     }
+    return { time: [], filter: [] };
   }, [appointment_date, data]);
 
   return (
     <div>
       <ResponsiveModal
-        title="Edit Profile"
+        title="Create Appointment"
         description="Update your profile information."
         trigger={children || <div />}
         open={open}
@@ -86,30 +80,34 @@ export default function CreateAppointment({
             className={cn('grid items-start gap-4')}
           >
             <div className="grid gap-2">
-              <Label htmlFor="firstname">Full Name</Label>
-              <Input type="text" id="firstname" />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="lastname">Role</Label>
-              <Select>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Doctor" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="patient">Patient</SelectItem>
-                  <SelectItem value="doctor">Doctor</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="grid gap-2">
               <CalendarForm dayOfWeek={data?.schedule?.work_day} />
             </div>
-            <div className="grid gap-2"></div>
+            <div className="gap-2 flex flex-wrap">
+              {timeSlot?.time.map((time, index) => (
+                <div
+                  onClick={() =>
+                    !timeSlot.filter.includes(time) &&
+                    form.setValue('appointment_time', time)
+                  }
+                  key={index}
+                  className={cn(
+                    'p-1 text-sm rounded-md cursor-pointer bg-slate-50 shadow-sm hover:scale-105 active:scale-95 transition-all',
+                    {
+                      'opacity-50 cursor-not-allowed hover:scale-100 active:scale-100':
+                        timeSlot.filter.includes(time),
+                      'bg-green-800 text-white': selectedTime === time,
+                    }
+                  )}
+                >
+                  {time}
+                </div>
+              ))}
+            </div>
             <div className="grid gap-2">
               <Label htmlFor="specialty">Specialty</Label>
               <Input type="text" id="specialty" />
             </div>
-            <Button type="submit">Save changes</Button>
+            <Button type="submit">Create Appointment</Button>
           </form>
         </Form>
       </ResponsiveModal>

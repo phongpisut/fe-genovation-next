@@ -1,5 +1,4 @@
 import { ThemeProvider } from '@/components/theme-provider';
-import { DoctorStoreProvider } from '@/provider/doctor-store-provider';
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono, Noto_Sans_Thai } from 'next/font/google';
 import './globals.css';
@@ -41,7 +40,7 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <DoctorStoreProvider>{children}</DoctorStoreProvider>
+            {children}
           </ThemeProvider>
         </body>
       </html>

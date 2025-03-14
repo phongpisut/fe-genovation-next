@@ -28,11 +28,13 @@ let currentDateTime = startDateTime;
 
 while (currentDateTime <= endDateTime) {
   const nextDateTime = addMinutes(currentDateTime, 30);
-  if( filterTime && parse(filterTime, 'HH:mm', new Date()) > nextDateTime) {
-    break;
+  if( filterTime && (parse(filterTime, 'HH:mm', new Date()) >= currentDateTime)) {
+    currentDateTime = nextDateTime;
+    continue;
   }
   timeRange.push(`${format(currentDateTime,'HH:mm')}-${format(nextDateTime,'HH:mm')}`);
   currentDateTime = nextDateTime;
+  
 }
 
 return timeRange;

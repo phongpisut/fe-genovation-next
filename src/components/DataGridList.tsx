@@ -51,10 +51,10 @@ const DataGridList: React.FC<DataGridListProps> = ({
           }}
           onClick={() => handleClick(item?.source, item?.id)}
         >
-          <div className="w-48 min-h-64 p-2 cursor-pointer transition-all bg-slate-50 rounded-md shadow-md hover:scale-105 active:scale-110">
+          <div className="w-48 min-h-60 p-2 cursor-pointer transition-all bg-slate-50 rounded-md shadow-md hover:scale-105 active:scale-110">
             <ContextMenu>
               <ContextMenuTrigger>
-                <div className="w-full h-full">
+                <div className="w-full min-h-60">
                   <Badge
                     variant="default"
                     className={cn('bg-slate-300 text-slate-800 self-start', {
@@ -114,10 +114,11 @@ const DataGridList: React.FC<DataGridListProps> = ({
                 </div>
               </ContextMenuTrigger>
               <ContextMenuContent>
-                <ContextMenuItem>Profile</ContextMenuItem>
-                <ContextMenuItem>Billing</ContextMenuItem>
-                <ContextMenuItem>Team</ContextMenuItem>
-                <ContextMenuItem>Subscription</ContextMenuItem>
+                <ContextMenuItem className="text-green-700">
+                  Create Appointment
+                </ContextMenuItem>
+                <ContextMenuItem>Select Doctor</ContextMenuItem>
+                <ContextMenuItem>Edit</ContextMenuItem>
               </ContextMenuContent>
             </ContextMenu>
           </div>
