@@ -8,14 +8,10 @@
       "plugin:@next/next/recommended",
       "plugin:prettier/recommended"
     ],
-      "parserOptions": {
-      "ecmaFeatures": {
-        "jsx": true
-      },
-      "ecmaVersion": 12,
-      "sourceType": "module"
-  
+    "parserOptions": {
+      "project": "./tsconfig.json"
     },
+    
     "rules": {
       "prettier/prettier": ["error", { "endOfLine": "auto" }],
       "react/react-in-jsx-scope": "off"

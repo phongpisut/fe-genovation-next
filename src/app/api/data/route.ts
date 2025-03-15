@@ -10,8 +10,10 @@ export async function GET(req: NextRequest) {
         .schema("api")
         .from("combined_view")
         .select(`*`)
-        .or(`name.ilike.%${text}%,doctor_name.ilike.%${text}%,patient_name.ilike.%${text}%`);
-
+        .or(`name.ilike.%${text}%,doctor_name.ilike.%${text}%,patient_name.ilike.%${text}%`)
+        .filter("deleted_at", "is", null)
+        
+   
     if (error) {
         return NextResponse.json({ error: error.message }, { status: 400 });
     }

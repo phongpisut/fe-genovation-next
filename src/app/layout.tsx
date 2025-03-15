@@ -1,4 +1,4 @@
-import { ThemeProvider } from '@/components/theme-provider';
+import { ThemeProvider } from '@/components/theme/theme-provider';
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono, Noto_Sans_Thai } from 'next/font/google';
 import './globals.css';
@@ -32,14 +32,12 @@ export default function RootLayout({
     <>
       <html lang="en">
         <body
-          className={`${geistSans.variable} ${geistMono.variable} ${notoSansThai.variable} antialiased `}
-        >
+          className={`${geistSans.variable} ${geistMono.variable} ${notoSansThai.variable} antialiased `}>
           <ThemeProvider
             attribute="class"
             defaultTheme="light"
             enableSystem
-            disableTransitionOnChange
-          >
+            disableTransitionOnChange>
             {children}
           </ThemeProvider>
         </body>

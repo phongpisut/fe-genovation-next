@@ -2,12 +2,12 @@ import { z } from "zod";
 
 
 export const loginSchema = z.object({
-  firstName: z.string().min(1, "First name is required"),
-  lastName: z.string().min(1, "Last name is required"),
-  role: z.string().default("doctor"),
+  Fullname: z.string().min(1, "Full name is required"),
   notes: z.string().optional(),
   specialty: z.string().optional(),
-  timeslot: z.record(z.string(),z.array(z.string())),
+  dayOfWeek: z.array(z.string()).optional(),
+  timeslot: z.record(z.string(),z.array(z.string())).optional(),
+  tel: z.string().min(10, "Invalid phone number").optional(),
 
 
 

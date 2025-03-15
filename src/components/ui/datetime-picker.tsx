@@ -1,7 +1,7 @@
 'use client';
 
-import { CalendarIcon } from '@radix-ui/react-icons';
 import { format } from 'date-fns';
+import { CalendarIcon } from 'lucide-react';
 import * as React from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -55,8 +55,7 @@ export function DateTimePicker() {
           className={cn(
             'w-full justify-start text-left font-normal',
             !date && 'text-muted-foreground'
-          )}
-        >
+          )}>
           <CalendarIcon className="mr-2 h-4 w-4" />
           {date ? (
             format(date, 'MM/dd/yyyy hh:mm aa')
@@ -86,8 +85,7 @@ export function DateTimePicker() {
                         : 'ghost'
                     }
                     className="sm:w-full shrink-0 aspect-square"
-                    onClick={() => handleTimeChange('hour', hour.toString())}
-                  >
+                    onClick={() => handleTimeChange('hour', hour.toString())}>
                     {hour}
                   </Button>
                 ))}
@@ -106,8 +104,7 @@ export function DateTimePicker() {
                     className="sm:w-full shrink-0 aspect-square"
                     onClick={() =>
                       handleTimeChange('minute', minute.toString())
-                    }
-                  >
+                    }>
                     {minute}
                   </Button>
                 ))}
@@ -128,8 +125,7 @@ export function DateTimePicker() {
                         : 'ghost'
                     }
                     className="sm:w-full shrink-0 aspect-square"
-                    onClick={() => handleTimeChange('ampm', ampm)}
-                  >
+                    onClick={() => handleTimeChange('ampm', ampm)}>
                     {ampm}
                   </Button>
                 ))}
