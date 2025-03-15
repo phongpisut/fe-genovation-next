@@ -27,7 +27,13 @@ const DataGridList: React.FC<DataGridListProps> = ({
 }) => {
   return (
     <motion.div
-      className="grid gap-4 w-[80vw] grid-cols-[repeat(auto-fit,_minmax(200px,_1fr))] p-2 mt-5 justify-items-center"
+      className={cn(
+        'flex justify-center gap-4 max-w-4xl w-[80vw] p-2 mt-5 justify-items-center ',
+        {
+          'grid grid-cols-[repeat(auto-fit,_minmax(200px,_1fr))]':
+            data.length > 3,
+        }
+      )}
       initial="hidden"
       animate="visible"
       variants={{

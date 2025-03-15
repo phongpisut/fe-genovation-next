@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { setAuthCookies } from '@/lib/supabaseClient';
 import { loginSchema, LoginSchemaType } from '@/schema/loginSchema';
 import { zodResolver } from '@hookform/resolvers/zod';
+import axios from 'axios';
 import { motion } from 'motion/react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
@@ -21,35 +22,27 @@ export default function LoginPage() {
     resolver: zodResolver(loginSchema),
   });
 
-  async function onSubmit(data: LoginSchemaType) {
+  function onSubmit(data: LoginSchemaType) {
     const { email, password } = data;
-
-    const response = await fetch('/api/auth', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
-    });
-
-    if (response.ok) {
-      const data = await response?.json();
-      await setAuthCookies(
-        data?.session?.access_token,
-        data?.session?.refresh_token
-      );
-      router.replace('/');
-    } else {
-      setError('validate', {
-        message: 'Invalid email or password',
-        type: 'validate',
+    axios
+      .post('/api/auth', { email, password })
+      .then(async (response) => {
+        const { session } = response.data;
+        await setAuthCookies(session?.access_token, session?.refresh_token);
+        router.replace('/');
+      })
+      .catch(() => {
+        setError('validate', {
+          message: 'Invalid email or password',
+          type: 'validate',
+        });
       });
-    }
   }
 
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="flex justify-center h-[calc(100vh-30px)] items-end sm:items-center bg-linear-to-t from-sky-500 to-indigo-500 relative"
-    >
+      className="flex justify-center h-[calc(100vh-30px)] items-end sm:items-center bg-linear-to-t from-sky-500 to-indigo-500 relative">
       <motion.div
         id="login-form-loader"
         className="w-screen h-full absolute bg-white self-end"
@@ -88,8 +81,7 @@ export default function LoginPage() {
         )}
         <Button
           className="bg-blue-500 text-white hover:scale-95 transition-all active:scale-90 cursor-pointer active:bg-slate-400 active:text-white "
-          type="submit"
-        >
+          type="submit">
           Login
         </Button>
         {errors.validate && (

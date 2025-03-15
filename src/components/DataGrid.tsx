@@ -4,12 +4,15 @@ import type { Data } from '@/app/api/data/type';
 import { DoctorData } from '@/app/api/doctor/appointments/type';
 import { useConfirm } from '@/components/alert/alert-dialog';
 import { Input } from '@/components/ui/input';
+import axios from 'axios';
 import { AnimatePresence, motion } from 'motion/react';
 import React, { useEffect, useRef, useState } from 'react';
 import { useDebounceValue, useIntersectionObserver } from 'usehooks-ts';
 import CreateAppointment from './CreateAppointment';
 import DataGridList from './DataGridList';
 import DoctorPopup from './DoctorPopup';
+import FilterGroup from './FilterGroup';
+import { useLoading } from '@/context/LoadingContext';
 
 type profileData = DoctorData & {
   patient_id: number;
@@ -24,6 +27,7 @@ const DataGrid = () => {
   const [profileData, setProfileData] = useState<profileData>();
   const [openDialog, setOpenDialog] = useState(false);
   const firstRender = useRef(true);
+  const filter = useRef('doc-pat-ap');
 
   const [matchingDoctor, setMatchingDoctor] = useState<Data>();
 
@@ -33,17 +37,39 @@ const DataGrid = () => {
 
   const confirmDialog = useConfirm();
 
+  const { setIsLoading } = useLoading();
+
   useEffect(() => {
-    fetchData(debouncedSearch);
+    fetchData(debouncedSearch,filter.current);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedSearch]);
 
-  const fetchData = async (query = '') => {
-    fetch(`/api/data?search=${query}`)
+  const fetchData = async (
+    query = '',
+    newFilter = 'doc-pat-ap',
+    dateRange = ''
+  ) => {
+    setIsLoading(true);
+    axios
+      .post(
+        '/api/data',
+        {
+          ...(dateRange && { dateRange: dateRange.split('-') }),
+        },
+        { params: { search: query, filter: newFilter } }
+      )
       .then(async (response) => {
-        const result = await response.json();
-        setData(result);
+        setData(response.data);
       })
-      .catch((error) => console.error(error));
+      .catch((error) => console.error(error))
+      .finally(() => {
+        setIsLoading(false);
+      });
+  };
+
+  const handleChangeFilter = (newFilter: string) => {
+    fetchData(debouncedSearch, newFilter);
+    filter.current = newFilter;
   };
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -53,12 +79,17 @@ const DataGrid = () => {
   };
 
   const onProfileSelected = (data: Data) => {
-    document.body.style.cursor = 'wait';
-    fetch(`/api/doctor/appointments?id=${matchingDoctor?.id}`)
+    setIsLoading(true);
+    axios
+      .get('/api/doctor/appointments', {
+        params: {
+          id: matchingDoctor?.id,
+        },
+      })
       .then(async (response) => {
-        const result = await response.json();
+        const result = response.data;
         const dialogData = {
-          ...result.data?.[0],
+          ...result?.doctorData?.[0],
           ...(result?.appointmentData?.length > 0 && {
             appointmentData: result?.appointmentData,
           }),
@@ -66,13 +97,14 @@ const DataGrid = () => {
           patient_name: data.name,
           key: Date.now().toString(),
         };
+        console.log(dialogData);
         setProfileData(dialogData);
         setOpenDialog(true);
       })
       .catch((error) => {
         console.error(error);
       })
-      .finally(() => (document.body.style.cursor = 'default'));
+      .finally(() => setIsLoading(false));
   };
 
   const handleContextSelect = async (data: Data, context: string) => {
@@ -91,9 +123,12 @@ const DataGrid = () => {
           cancelButton: 'Cancel',
         }).then((confirmed) => {
           if (confirmed) {
-            fetch(`/api/appointments?id=${data.id}`, {
-              method: 'DELETE',
-            })
+            axios
+              .delete('/api/appointments', {
+                params: {
+                  id: data.id,
+                },
+              })
               .then(() => {
                 setData((prev) => prev.filter((item) => item.id !== data.id));
               })
@@ -112,19 +147,25 @@ const DataGrid = () => {
   return (
     <div>
       <CreateAppointment
-        key={profileData?.key || 'create-appointment'}
+        key={profileData?.key ||'create-appointment'}
         open={openDialog}
         setOpen={setOpenDialog}
         data={profileData}
       />
-      <Input
-        id="search"
-        ref={ref}
-        className="mx-auto max-w-lg md:min-w-lg "
-        value={searchTerm}
-        onChange={handleSearchChange}
-        placeholder="Search..."
-      />
+
+      <div className="mx-auto max-w-lg md:min-w-lg">
+        <div className="flex mb-2 text-center items-center">
+          <FilterGroup onChangeFilter={handleChangeFilter} />
+        </div>
+        <Input
+          id="search"
+          ref={ref}
+          value={searchTerm}
+          onChange={handleSearchChange}
+          placeholder="Search..."
+          className="bg-slate-50"
+        />
+      </div>
       <AnimatePresence>
         {!isIntersecting && (
           <motion.div

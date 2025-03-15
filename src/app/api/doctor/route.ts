@@ -20,7 +20,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const { id, created_at, fullname, notes, specialty, schedule } =
+  const { created_at, fullname, notes, specialty, schedule } =
     await req.json();
   const supabase = await createClient();
 
@@ -28,7 +28,6 @@ export async function POST(req: NextRequest) {
     .schema('api')
     .from('doctors')
     .insert({ created_at, fullname, notes, specialty, schedule })
-    .eq('id', id);
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 400 });

@@ -3,7 +3,6 @@
 import { cn, stringToTimeSlot } from '@/lib/utils';
 import Image from 'next/image';
 import { Button } from './ui/button';
-import { Input } from './ui/input';
 import { ResponsiveModal } from './ui/responsiveModal';
 
 import type { DoctorData } from '@/app/api/doctor/appointments/type';
@@ -16,6 +15,7 @@ import {
 } from '@/components/ui/form';
 
 import { zodResolver } from '@hookform/resolvers/zod';
+import axios from 'axios';
 import { format, isSameDay, isToday } from 'date-fns';
 import { motion } from 'motion/react';
 import { useEffect, useMemo } from 'react';
@@ -23,6 +23,7 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
 import { z } from 'zod';
 import { CalendarForm } from './forms/calendar-form';
+import { Textarea } from './ui/textarea';
 
 export default function CreateAppointment({
   children,
@@ -53,17 +54,14 @@ export default function CreateAppointment({
   const errors = form.formState.errors;
 
   const onSubmit = async (formData: z.infer<typeof FormSchema>) => {
-    await fetch('/api/appointments', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
+    await axios
+      .post('/api/appointments', {
         patient_id: data?.patient_id,
         doctor_id: data?.id,
         notes: formData.notes,
         timeslot: formData.appointment_time,
         start_date: format(formData.appointment_date, 'yyyy-MM-dd'),
-      }),
-    })
+      })
       .then(() =>
         toast('Appointment created successfully.', { type: 'success' })
       )
@@ -180,7 +178,7 @@ export default function CreateAppointment({
                     <FormLabel>Notes</FormLabel>
 
                     <FormControl>
-                      <Input type="text" {...field} />
+                      <Textarea placeholder="Enter your notes" {...field} />
                     </FormControl>
                   </FormItem>
                 )}

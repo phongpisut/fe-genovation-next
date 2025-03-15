@@ -6,7 +6,7 @@ export async function GET(req: NextRequest) {
   const doctor_id = await searchParams.get('id')!;
   const supabase = await createClient();
 
-  const { data, error } = await supabase
+  const { data: doctorData, error } = await supabase
     .schema('api')
     .from('doctors')
     .select(`*`)
@@ -30,5 +30,5 @@ export async function GET(req: NextRequest) {
     );
   }
 
-  return NextResponse.json({ data, appointmentData }, { status: 200 });
+  return NextResponse.json({ doctorData, appointmentData }, { status: 200 });
 }

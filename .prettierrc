@@ -8,6 +8,7 @@
     "jsxBracketSameLine": true,
     "arrowParens": "always",
     "proseWrap": "preserve",
+    "endOfLine": "auto",
     "overrides": [
       {
         "files": ["*.ts", "*.tsx"],
