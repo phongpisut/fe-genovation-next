@@ -3,20 +3,18 @@ import * as React from 'react';
 import { cn } from '@/lib/utils';
 import { PatternFormat, PatternFormatProps } from 'react-number-format';
 
-type ModifiedPatternFormatProps = Omit<
-  PatternFormatProps,
-  'format' | 'type'
-> & {
-  format?: string;
-};
-
 function Input({
   className,
   type,
   format,
   ...props
-}: React.ComponentProps<'input'> & ModifiedPatternFormatProps) {
+}: React.ComponentProps<'input'> & { format?: string }) {
   if (format) {
+    const patternFormatProps = {
+      ...props,
+      format,
+    } as PatternFormatProps;
+
     return (
       <PatternFormat
         className={cn(
@@ -25,7 +23,7 @@ function Input({
           'aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive',
           className
         )}
-        {...props}
+        {...patternFormatProps}
         format={format}
       />
     );

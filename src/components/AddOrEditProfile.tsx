@@ -116,6 +116,7 @@ export default function AddOrEditProfile({
         form.reset({
           fullname: doctorData.fullname,
           workDay: doctorData.schedule?.work_day,
+          specialty: doctorData.specialty || '',
           timeStart: (doctorWorkHours?.[0] as string) || '',
           timeEnd: (doctorWorkHours?.[1] as string) || '',
           notes: doctorData?.notes || '',
@@ -138,11 +139,13 @@ export default function AddOrEditProfile({
   const errors = form.formState.errors;
 
   const onSubmit = async (formData: ProfileData) => {
-    const { fullname, workDay, timeStart, timeEnd, notes, tel } = formData;
+    const { fullname, workDay, timeStart, timeEnd, notes, tel, specialty } =
+      formData;
     const payload = {
       ...(data?.id && { id: data?.id }),
       fullname,
       ...(profileType === 'doctor' && {
+        ...(specialty && { specialty }),
         schedule: {
           work_day: workDay,
           work_hours: `${timeStart}-${timeEnd}`,
@@ -260,6 +263,29 @@ export default function AddOrEditProfile({
             </div>
             {errors.fullname && (
               <p className="text-red-500 text-sm">{errors.fullname.message}</p>
+            )}
+
+            {profileType === 'doctor' && (
+              <div className="grid gap-2">
+                <FormField
+                  control={form.control}
+                  name="specialty"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <FormLabel>Specialty</FormLabel>
+                      <FormControl>
+                        <Input
+                          className="bg-slate-50"
+                          type="text"
+                          id="specialty"
+                          {...field}
+                          onFocus={() => form.clearErrors('fullname')}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              </div>
             )}
 
             {profileType === 'patient' && (

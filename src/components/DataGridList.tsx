@@ -7,7 +7,14 @@ import {
   ContextMenuTrigger,
 } from '@/components/ui/context-menu';
 import { cn } from '@/lib/utils';
-import { Phone, PlusIcon } from 'lucide-react';
+import {
+  FileIcon,
+  PencilIcon,
+  Phone,
+  PlusIcon,
+  StethoscopeIcon,
+  TrashIcon,
+} from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -184,7 +191,8 @@ const DataGridList: React.FC<DataGridListProps> = ({
                       onClick={() =>
                         handleContextSelect(item, 'create-appointment')
                       }>
-                      Create Appointment
+                      <FileIcon className="mr-1 text-inherit" /> Create
+                      Appointment
                     </ContextMenuItem>
                   )}
                   {item.source === 'doctor' && (
@@ -192,12 +200,13 @@ const DataGridList: React.FC<DataGridListProps> = ({
                       onClick={() =>
                         handleContextSelect(item, 'select-doctor')
                       }>
-                      Select Doctor
+                      <StethoscopeIcon className="mr-1" /> Select Doctor
                     </ContextMenuItem>
                   )}
                   {item.source !== 'appointment' && (
                     <ContextMenuItem
                       onClick={() => handleContextSelect(item, 'edit')}>
+                      <PencilIcon className="mr-1 " />
                       Edit
                     </ContextMenuItem>
                   )}
@@ -208,7 +217,8 @@ const DataGridList: React.FC<DataGridListProps> = ({
                         handleContextSelect(item, 'cancel-appointment')
                       }
                       className="text-red-600">
-                      Cancel Appointment
+                      <TrashIcon className="mr-1 text-inherit" /> Cancel
+                      Appointment
                     </ContextMenuItem>
                   )}
                 </ContextMenuContent>
