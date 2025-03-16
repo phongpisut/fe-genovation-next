@@ -3,14 +3,14 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
-  const doctor_id = await searchParams.get('id')!;
+  const patient_id = await searchParams.get('id')!;
   const supabase = await createClient();
 
   const { data, error } = await supabase
     .schema('api')
-    .from('doctors')
+    .from('patients')
     .select(`*`)
-    .eq('id', doctor_id);
+    .eq('id', patient_id);
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 400 });
@@ -20,13 +20,13 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const { fullname, notes, specialty, schedule } = await req.json();
+  const { fullname, notes, tel } = await req.json();
   const supabase = await createClient();
 
   const { data, error } = await supabase
     .schema('api')
-    .from('doctors')
-    .insert({ fullname, notes, specialty, schedule });
+    .from('patients')
+    .insert({ fullname, notes, tel });
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 400 });
@@ -36,13 +36,13 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PUT(req: NextRequest) {
-  const { id, fullname, notes, specialty, schedule } = await req.json();
+  const { id, fullname, notes, tel } = await req.json();
   const supabase = await createClient();
 
   const { data, error } = await supabase
     .schema('api')
-    .from('doctors')
-    .update({ fullname, notes, specialty, schedule })
+    .from('patients')
+    .update({ fullname, notes, tel })
     .eq('id', id);
 
   if (error) {
@@ -59,7 +59,7 @@ export async function DELETE(req: NextRequest) {
 
   const { data, error } = await supabase
     .schema('api')
-    .from('doctors')
+    .from('patients')
     .delete()
     .eq('id', doctor_id);
 

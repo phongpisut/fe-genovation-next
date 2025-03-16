@@ -1,11 +1,11 @@
 'use client';
 
+import { Button } from '@/components/ui/button';
+import { ResponsiveModal } from '@/components/ui/responsiveModal';
 import { cn, stringToTimeSlot } from '@/lib/utils';
 import Image from 'next/image';
-import { Button } from './ui/button';
-import { ResponsiveModal } from './ui/responsiveModal';
 
-import type { DoctorData } from '@/app/api/doctor/appointments/type';
+import type { CreateAppointmentData } from '@/app/api/doctor/appointments/type';
 import {
   Form,
   FormControl,
@@ -14,6 +14,8 @@ import {
   FormLabel,
 } from '@/components/ui/form';
 
+import { CalendarForm } from '@/components/forms/calendar-form';
+import { Textarea } from '@/components/ui/textarea';
 import { zodResolver } from '@hookform/resolvers/zod';
 import axios from 'axios';
 import { format, isSameDay, isToday } from 'date-fns';
@@ -22,8 +24,6 @@ import { useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
 import { z } from 'zod';
-import { CalendarForm } from './forms/calendar-form';
-import { Textarea } from './ui/textarea';
 
 export default function CreateAppointment({
   children,
@@ -33,10 +33,7 @@ export default function CreateAppointment({
 }: {
   children?: React.ReactNode;
   open?: boolean;
-  data?: DoctorData & {
-    patient_id: number;
-    patient_name: string;
-  };
+  data?: CreateAppointmentData;
   setOpen?: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
   const FormSchema = z.object({

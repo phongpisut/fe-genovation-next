@@ -1,31 +1,34 @@
 'use client';
 
 import type { Data } from '@/app/api/data/type';
-import { DoctorData } from '@/app/api/doctor/appointments/type';
+
+import type { CreateAppointmentData } from '@/app/api/doctor/appointments/type';
+import type { DoctorData } from '@/app/api/doctor/type';
+import type { PatientData } from '@/app/api/patient/type';
 import { useConfirm } from '@/components/alert/alert-dialog';
 import { Input } from '@/components/ui/input';
+import { useLoading } from '@/context/LoadingContext';
 import axios from 'axios';
 import { AnimatePresence, motion } from 'motion/react';
 import React, { useEffect, useRef, useState } from 'react';
 import { useDebounceValue, useIntersectionObserver } from 'usehooks-ts';
+import AddOrEditProfile from './AddOrEditProfile';
 import CreateAppointment from './CreateAppointment';
 import DataGridList from './DataGridList';
 import DoctorPopup from './DoctorPopup';
 import FilterGroup from './FilterGroup';
-import { useLoading } from '@/context/LoadingContext';
 
-type profileData = DoctorData & {
-  patient_id: number;
-  patient_name: string;
-  key: string;
-};
+type ProfileData = DoctorData | PatientData;
 
-const DataGrid = () => {
+const Main = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearch] = useDebounceValue(searchTerm, 500);
   const [data, setData] = useState<Data[]>([]);
-  const [profileData, setProfileData] = useState<profileData>();
+  const [appointmentData, setAppointmentData] =
+    useState<CreateAppointmentData>();
+  const [profileData, setProfileData] = useState<ProfileData>();
   const [openDialog, setOpenDialog] = useState(false);
+  const [openProfileDialog, setOpenProfileDialog] = useState(false);
   const firstRender = useRef(true);
   const filter = useRef('doc-pat-ap');
 
@@ -40,8 +43,8 @@ const DataGrid = () => {
   const { setIsLoading } = useLoading();
 
   useEffect(() => {
-    fetchData(debouncedSearch,filter.current);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    fetchData(debouncedSearch, filter.current);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedSearch]);
 
   const fetchData = async (
@@ -78,7 +81,7 @@ const DataGrid = () => {
     setSearchTerm(query);
   };
 
-  const onProfileSelected = (data: Data) => {
+  const onCreateAppointment = (data: Data) => {
     setIsLoading(true);
     axios
       .get('/api/doctor/appointments', {
@@ -98,8 +101,27 @@ const DataGrid = () => {
           key: Date.now().toString(),
         };
         console.log(dialogData);
-        setProfileData(dialogData);
+        setAppointmentData(dialogData);
         setOpenDialog(true);
+      })
+      .catch((error) => {
+        console.error(error);
+      })
+      .finally(() => setIsLoading(false));
+  };
+
+  const onEditProfile = async (data: Data) => {
+    setIsLoading(true);
+    axios
+      .get(`/api/${data.source}`, {
+        params: {
+          id: data.id,
+        },
+      })
+      .then(async (response) => {
+        const result = response.data[0];
+        setProfileData(result);
+        setOpenProfileDialog(true);
       })
       .catch((error) => {
         console.error(error);
@@ -114,7 +136,7 @@ const DataGrid = () => {
         console.log(data);
         break;
       case 'create-appointment':
-        onProfileSelected(data);
+        onCreateAppointment(data);
         break;
       case 'cancel-appointment':
         await confirmDialog({
@@ -138,6 +160,7 @@ const DataGrid = () => {
 
         break;
       case 'edit':
+        onEditProfile(data);
         break;
       default:
         break;
@@ -147,10 +170,19 @@ const DataGrid = () => {
   return (
     <div>
       <CreateAppointment
-        key={profileData?.key ||'create-appointment'}
+        key={appointmentData?.key || 'create-appointment'}
         open={openDialog}
         setOpen={setOpenDialog}
+        data={appointmentData}
+      />
+      <AddOrEditProfile
+        open={openProfileDialog}
+        setOpen={() => {
+          setOpenProfileDialog(false);
+          setProfileData(undefined);
+        }}
         data={profileData}
+        key={new Date().toString()}
       />
 
       <div className="mx-auto max-w-lg md:min-w-lg">
@@ -200,4 +232,4 @@ const DataGrid = () => {
   );
 };
 
-export default DataGrid;
+export default Main;

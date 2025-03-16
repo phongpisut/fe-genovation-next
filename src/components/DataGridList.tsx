@@ -7,8 +7,10 @@ import {
   ContextMenuTrigger,
 } from '@/components/ui/context-menu';
 import { cn } from '@/lib/utils';
+import { Phone } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import Image from 'next/image';
+import Link from 'next/link';
 import React from 'react';
 import { Separator } from './ui/separator';
 
@@ -104,6 +106,19 @@ const DataGridList: React.FC<DataGridListProps> = ({
                     {item?.source !== 'appointment' ? (
                       <div>
                         <p className="text-center">{item?.name}</p>
+                        {item?.tel && (
+                          <Link
+                            href={`tel:${item?.tel?.replace(/[()-]/g, '')}`}
+                            className="flex gap-1 text-xs text-center justify-center relative right-1">
+                            <Phone
+                              fill="black"
+                              width={10}
+                              height={10}
+                              className="relative top-[2px]"
+                            />{' '}
+                            {item?.tel}
+                          </Link>
+                        )}
 
                         {item?.specialty && (
                           <div>
