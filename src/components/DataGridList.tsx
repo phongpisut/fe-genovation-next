@@ -7,7 +7,7 @@ import {
   ContextMenuTrigger,
 } from '@/components/ui/context-menu';
 import { cn } from '@/lib/utils';
-import { Phone } from 'lucide-react';
+import { Phone, PlusIcon } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -17,7 +17,7 @@ import { Separator } from './ui/separator';
 type DataGridListProps = {
   data: Data[];
   firstRender: React.RefObject<boolean>;
-  handleContextSelect: (data: Data, context: string) => void;
+  handleContextSelect: (data: Data | '', context: string) => void;
   isMatching: boolean;
 };
 
@@ -48,6 +48,31 @@ const DataGridList: React.FC<DataGridListProps> = ({
         },
       }}>
       <AnimatePresence mode="sync">
+        <motion.div
+          aria-label="add profile"
+          variants={{
+            hidden: { opacity: 0, y: 20 },
+            visible: { opacity: 1, y: 0 },
+          }}
+          transition={{
+            duration: firstRender.current ? 0.4 : 0,
+            delay: firstRender.current ? 0.1 : 0,
+          }}
+          onClick={() => handleContextSelect('', 'create-profile')}
+          layout
+          exit={{
+            opacity: 0,
+            scale: 0,
+            transition: { duration: 0.2 },
+          }}>
+          <div className="content-center  w-48 min-h-60 p-2 cursor-pointer transition-all bg-slate-50/30 border-dashed border-2 border-green-800 hover:border-t-green-900 hover:border-b-green-800 rounded-md shadow-md hover:scale-105 active:scale-110 hover:animate-pulse">
+            <PlusIcon
+              width={50}
+              height={50}
+              className="text-green-800 mx-auto"
+            />
+          </div>
+        </motion.div>
         {data.map((item, index) => (
           <motion.div
             key={`${item.source}-${item.id}`}

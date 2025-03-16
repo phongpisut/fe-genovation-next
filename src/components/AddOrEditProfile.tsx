@@ -140,7 +140,7 @@ export default function AddOrEditProfile({
   const onSubmit = async (formData: ProfileData) => {
     const { fullname, workDay, timeStart, timeEnd, notes, tel } = formData;
     const payload = {
-      id: data?.id,
+      ...(data?.id && { id: data?.id }),
       fullname,
       ...(profileType === 'doctor' && {
         schedule: {
@@ -152,26 +152,30 @@ export default function AddOrEditProfile({
       ...(profileType === 'patient' && { tel }),
     };
 
+    const fetcher = isEdit ? axios.put : axios.post;
+
     await confirmDialog({
-      title: 'Update Profile',
-      body: 'Are you sure you want to update this profile?',
+      title: `${isEdit ? 'Update' : 'Create'} Profile`,
+      body: `Are you sure you want to ${isEdit ? 'update' : 'create'} this profile?`,
       cancelButton: 'Cancel',
     }).then(async (confirmed) => {
       if (confirmed) {
-        setIsLoading(true);
-        axios
-          .put(`/api/${profileType}`, payload)
-          .then(async () => {
-            toast('Update profile successfully', { type: 'success' });
-            await setTimeout(() => {
-              window.location.reload();
-            }, 500);
+        fetcher(`/api/${profileType}`, payload)
+          .then(() => {
+            toast(`${isEdit ? 'Update' : 'Create'} profile successfully`, {
+              type: 'success',
+            });
           })
           .catch(() => {
-            toast('Update profile fail', { type: 'error' });
+            toast(`${isEdit ? 'Update' : 'Create'} profile fail`, {
+              type: 'error',
+            });
           })
-          .finally(() => {
+          .finally(async () => {
             setIsLoading(false);
+            await setTimeout(() => {
+              window.location.reload();
+            }, 600);
           });
       }
     });
@@ -208,8 +212,8 @@ export default function AddOrEditProfile({
   return (
     <div>
       <ResponsiveModal
-        title="Create Profile"
-        description="Create doctor or patient profile."
+        title={isEdit ? 'Update Profile' : 'Create Profile'}
+        description={`${isEdit ? 'Update' : 'Create'} doctor or patient profile.`}
         trigger={children || <div />}
         open={open}
         setOpen={setOpen}>
@@ -382,7 +386,7 @@ export default function AddOrEditProfile({
               />
             </div>
             <Button type="submit" className="mb-0">
-              Save Change
+              {isEdit ? 'Save Changes' : 'Add Profile'}
             </Button>
             {data && (
               <Button

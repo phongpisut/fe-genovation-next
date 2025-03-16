@@ -11,6 +11,7 @@ import { useLoading } from '@/context/LoadingContext';
 import axios from 'axios';
 import { AnimatePresence, motion } from 'motion/react';
 import React, { useEffect, useRef, useState } from 'react';
+import { DateRange } from 'react-day-picker';
 import { useDebounceValue, useIntersectionObserver } from 'usehooks-ts';
 import AddOrEditProfile from './AddOrEditProfile';
 import CreateAppointment from './CreateAppointment';
@@ -23,23 +24,28 @@ type ProfileData = DoctorData | PatientData;
 const Main = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearch] = useDebounceValue(searchTerm, 500);
+
   const [data, setData] = useState<Data[]>([]);
   const [appointmentData, setAppointmentData] =
     useState<CreateAppointmentData>();
   const [profileData, setProfileData] = useState<ProfileData>();
+
   const [openDialog, setOpenDialog] = useState(false);
   const [openProfileDialog, setOpenProfileDialog] = useState(false);
+  const [matchingDoctor, setMatchingDoctor] = useState<Data>();
+
   const firstRender = useRef(true);
   const filter = useRef('doc-pat-ap');
-
-  const [matchingDoctor, setMatchingDoctor] = useState<Data>();
+  const dateRange = useRef<DateRange>({
+    from: undefined,
+    to: undefined,
+  });
 
   const { isIntersecting, ref } = useIntersectionObserver({
     threshold: 0.2,
   });
 
   const confirmDialog = useConfirm();
-
   const { setIsLoading } = useLoading();
 
   useEffect(() => {
@@ -48,18 +54,23 @@ const Main = () => {
   }, [debouncedSearch]);
 
   const fetchData = async (
-    query = '',
-    newFilter = 'doc-pat-ap',
-    dateRange = ''
+    query?: string,
+    newFilter?: string,
+    newDateRange?: DateRange
   ) => {
     setIsLoading(true);
     axios
       .post(
         '/api/data',
         {
-          ...(dateRange && { dateRange: dateRange.split('-') }),
+          dateRange: newDateRange || dateRange.current,
         },
-        { params: { search: query, filter: newFilter } }
+        {
+          params: {
+            search: query || debouncedSearch,
+            filter: newFilter || filter.current,
+          },
+        }
       )
       .then(async (response) => {
         setData(response.data);
@@ -71,8 +82,13 @@ const Main = () => {
   };
 
   const handleChangeFilter = (newFilter: string) => {
-    fetchData(debouncedSearch, newFilter);
     filter.current = newFilter;
+    fetchData(undefined, newFilter);
+  };
+
+  const handleDateRangeChange = (date: DateRange) => {
+    dateRange.current = date;
+    fetchData(undefined, undefined, date);
   };
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -129,41 +145,52 @@ const Main = () => {
       .finally(() => setIsLoading(false));
   };
 
-  const handleContextSelect = async (data: Data, context: string) => {
-    switch (context) {
-      case 'select-doctor':
-        setMatchingDoctor(data);
-        console.log(data);
-        break;
-      case 'create-appointment':
-        onCreateAppointment(data);
-        break;
-      case 'cancel-appointment':
-        await confirmDialog({
-          title: 'Cancel Appointment',
-          body: 'Are you sure you want to cancel this appointment?',
-          cancelButton: 'Cancel',
-        }).then((confirmed) => {
-          if (confirmed) {
-            axios
-              .delete('/api/appointments', {
-                params: {
-                  id: data.id,
-                },
-              })
-              .then(() => {
-                setData((prev) => prev.filter((item) => item.id !== data.id));
-              })
-              .catch((error) => console.error(error));
-          }
-        });
+  const handleContextSelect = async (data: Data | '', context: string) => {
+    if (data) {
+      switch (context) {
+        case 'select-doctor':
+          setMatchingDoctor(data);
+          console.log(data);
+          break;
+        case 'create-appointment':
+          onCreateAppointment(data);
+          break;
+        case 'cancel-appointment':
+          await confirmDialog({
+            title: 'Cancel Appointment',
+            body: 'Are you sure you want to cancel this appointment?',
+            cancelButton: 'Cancel',
+          }).then((confirmed) => {
+            if (confirmed) {
+              axios
+                .delete('/api/appointments', {
+                  params: {
+                    id: data.id,
+                  },
+                })
+                .then(() => {
+                  setData((prev) =>
+                    prev.filter(
+                      (item) =>
+                        item.id !== data.id && data.source == 'appointment'
+                    )
+                  );
+                })
+                .catch((error) => console.error(error));
+            }
+          });
 
-        break;
-      case 'edit':
-        onEditProfile(data);
-        break;
-      default:
-        break;
+          break;
+        case 'edit':
+          onEditProfile(data);
+          break;
+        default:
+          break;
+      }
+    } else {
+      if (context === 'create-profile') {
+        setOpenProfileDialog(true);
+      }
     }
   };
 
@@ -187,7 +214,10 @@ const Main = () => {
 
       <div className="mx-auto max-w-lg md:min-w-lg">
         <div className="flex mb-2 text-center items-center">
-          <FilterGroup onChangeFilter={handleChangeFilter} />
+          <FilterGroup
+            onChangeFilter={handleChangeFilter}
+            onDateRangeChange={handleDateRangeChange}
+          />
         </div>
         <Input
           id="search"

@@ -1,11 +1,11 @@
 import { createClient } from '@/lib/supabaseServer';
+import { format } from 'date-fns';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const text = searchParams.get('search') || '';
   const filter = searchParams.get('filter') || '';
-  const date = searchParams.get('date') || '';
   const { dateRange } = await req.json();
 
   const supabase = await createClient();
@@ -17,6 +17,14 @@ export async function POST(req: NextRequest) {
     query = query.or(
       `name.ilike.%${text}%,doctor_name.ilike.%${text}%,patient_name.ilike.%${text}%`
     );
+  }
+
+  if (dateRange?.from && dateRange?.to) {
+    query = query
+      .gte('start_date', format(dateRange.from, 'yyyy-MM-dd'))
+      .lte('start_date', format(dateRange.to, 'yyyy-MM-dd'));
+  } else if (dateRange?.from) {
+    query = query.eq('start_date', format(dateRange.from, 'yyyy-MM-dd'));
   }
 
   if (filter) {
@@ -39,10 +47,6 @@ export async function POST(req: NextRequest) {
         query = query.or(filterConditions.join(','));
       }
     }
-  }
-
-  if (date) {
-    query = query.eq('start_date', date);
   }
 
   query = query.filter('deleted_at', 'is', null);
