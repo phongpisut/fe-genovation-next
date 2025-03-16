@@ -10,7 +10,7 @@ export default function FilterGroup({
   onDateRangeChange,
 }: {
   onChangeFilter?: (filter: string) => void;
-  onDateRangeChange?: (date: DateRange) => void;
+  onDateRangeChange?: (date?: DateRange) => void;
 }) {
   const [value, setValue] = useState<string[]>(['doc', 'pat', 'ap']);
   const [shake, setShake] = useState(false);

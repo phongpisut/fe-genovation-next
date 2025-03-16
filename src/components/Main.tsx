@@ -36,7 +36,7 @@ const Main = () => {
 
   const firstRender = useRef(true);
   const filter = useRef('doc-pat-ap');
-  const dateRange = useRef<DateRange>({
+  const dateRange = useRef<DateRange | undefined>({
     from: undefined,
     to: undefined,
   });
@@ -86,7 +86,7 @@ const Main = () => {
     fetchData(undefined, newFilter);
   };
 
-  const handleDateRangeChange = (date: DateRange) => {
+  const handleDateRangeChange = (date?: DateRange) => {
     dateRange.current = date;
     fetchData(undefined, undefined, date);
   };
