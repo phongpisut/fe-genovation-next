@@ -19,7 +19,6 @@ import { AnimatePresence, motion } from 'motion/react';
 import Image from 'next/image';
 import Link from 'next/link';
 import React from 'react';
-import { useMediaQuery } from 'usehooks-ts';
 import { Separator } from './ui/separator';
 
 type DataGridListProps = {
@@ -35,7 +34,6 @@ const DataGridList: React.FC<DataGridListProps> = ({
   handleContextSelect,
   isMatching,
 }) => {
-  const isDesktop = useMediaQuery('(min-width: 768px)');
   return (
     <motion.div
       className={cn(
