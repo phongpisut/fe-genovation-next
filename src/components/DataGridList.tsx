@@ -19,6 +19,7 @@ import { AnimatePresence, motion } from 'motion/react';
 import Image from 'next/image';
 import Link from 'next/link';
 import React from 'react';
+import { useMediaQuery } from 'usehooks-ts';
 import { Separator } from './ui/separator';
 
 type DataGridListProps = {
@@ -34,10 +35,11 @@ const DataGridList: React.FC<DataGridListProps> = ({
   handleContextSelect,
   isMatching,
 }) => {
+  const isDesktop = useMediaQuery('(min-width: 768px)');
   return (
     <motion.div
       className={cn(
-        'flex justify-center gap-4 max-w-4xl w-[80vw] p-2 mt-5 justify-items-center ',
+        'grid grid-cols-1 sm:flex justify-center gap-4 max-w-4xl w-[80vw] p-2 mt-5 justify-items-center ',
         {
           'grid grid-cols-[repeat(auto-fit,_minmax(200px,_1fr))]':
             data.length > 3,
@@ -66,7 +68,6 @@ const DataGridList: React.FC<DataGridListProps> = ({
             delay: firstRender.current ? 0.1 : 0,
           }}
           onClick={() => handleContextSelect('', 'create-profile')}
-          layout
           exit={{
             opacity: 0,
             scale: 0,
