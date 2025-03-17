@@ -41,7 +41,7 @@ const DataGridList: React.FC<DataGridListProps> = ({
       className={cn(
         'grid grid-cols-1 sm:flex justify-center gap-4 max-w-4xl w-[80vw] p-2 mt-5 justify-items-center ',
         {
-          'grid grid-cols-[repeat(auto-fit,_minmax(200px,_1fr))]':
+          'sm:grid sm:grid-cols-[repeat(auto-fit,_minmax(200px,_1fr))]':
             data.length > 3,
         }
       )}
