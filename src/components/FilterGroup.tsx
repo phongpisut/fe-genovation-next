@@ -53,7 +53,10 @@ export default function FilterGroup({
           <HourglassIcon className="text-slate-600" />
         </ToggleGroupItem>
       </ToggleGroup>
-      <DatePickerWithRange onSelectedDate={onDateRangeChange} />
+      <DatePickerWithRange
+        className="w-full max-w-[250px]"
+        onSelectedDate={onDateRangeChange}
+      />
     </div>
   );
 }

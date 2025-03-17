@@ -212,13 +212,11 @@ const Main = () => {
         key={new Date().toString()}
       />
 
-      <div className="mx-auto max-w-lg md:min-w-lg">
-        <div className="flex mb-2 text-center items-center">
-          <FilterGroup
-            onChangeFilter={handleChangeFilter}
-            onDateRangeChange={handleDateRangeChange}
-          />
-        </div>
+      <div className="grid md:min-w-lg gap-y-2 max-w-lg mx-auto ">
+        <FilterGroup
+          onChangeFilter={handleChangeFilter}
+          onDateRangeChange={handleDateRangeChange}
+        />
         <Input
           id="search"
           ref={ref}
